@@ -3,6 +3,7 @@ let menus = document.querySelectorAll(".menus button");
 menus.forEach(x => x.addEventListener("click", (event)=>getNewsByTopic(event) ));
 
 let searchButton = document.getElementById("search-button");
+let url;
 
 // const getLatestNews = async ()=>{
 //     let url = new URL(`https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=sport&page_size=10`
@@ -20,36 +21,40 @@ let searchButton = document.getElementById("search-button");
 //     render();
 // };
 
+//각 함수에서 필요한 url을 만든다.
+//api호출 함수를 부른다.
+
+const getNews = async (url) => {
+    try {
+        
+        let response = await fetch(url); //ajax, http, fetch
+        let data = await response.json();
+
+        if(response.status == 200){
+            news = data.articles;
+            console.log(news);
+            render();
+        }else{
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.log("잡힌 에러는", error.message);
+        errorRender(error.message);
+    } 
+}
+
 const getLatestNews = async ()=>{
-    let url = new URL(`https://newsapi.org/v2/top-headlines?country=kr&category=sports&pageSize=10&apiKey=64bd66b165fa4d0799cc58d64f61e6d2`
+    url = new URL(`https://newsapi.org/v2/top-headlines?country=kr&category=sports&pageSize=10&apiKey=64bd66b165fa4d0799cc58d64f61e6d`
                     );
-    //let header = new Headers({'x-api-key':'Ctari_xPv5omOPk3hrjJujeOUL3icaHxV2OV-VsLwPk'});
-    console.log(url);
-
-    let response = await fetch(url); //ajax, http, fetch
-    let data = await response.json();
-    console.log(data);
-
-    news =data.articles;
-    console.log(news);
-
-    render();
+    getNews(url);
 };
 
 const getNewsByTopic = async (event) => {
     console.log("클릭됨", event.target.textContent);
     let topic = event.target.textContent.toLowerCase();
-    let url = new URL(`https://newsapi.org/v2/top-headlines?country=kr&category=${topic}&pageSize=20&apiKey=64bd66b165fa4d0799cc58d64f61e6d2`);
+    url = new URL(`https://newsapi.org/v2/top-headlines?country=kr&category=${topic}&pageSize=20&apiKey=64bd66b165fa4d0799cc58d64f61e6d2`);
     
-    let response = await fetch(url); //ajax, http, fetch
-    let data = await response.json();
-    console.log("토픽뉴스 데이터",data);
-
-    news =data.articles;
-    console.log(news);
-
-    render();
-
+    getNews(url);
 }
 
 const getNewsByKeyword = async () => {
@@ -59,16 +64,10 @@ const getNewsByKeyword = async () => {
     //4. url 부르기
     //5. 데이터 가져오기
     //6. 데이터 보여주기
-
     let keyword = document.getElementById("search-input").value;
-    let url = new URL(`https://newsapi.org/v2/everything?q=${keyword}&apiKey=64bd66b165fa4d0799cc58d64f61e6d2`);
+    url = new URL(`https://newsapi.org/v2/everything?q=${keyword}&apiKey=64bd66b165fa4d0799cc58d64f61e6d2`);
 
-    let response = await fetch(url);
-    let data = await response.json();
-    news = data.articles;
-
-    render();
-
+    getNews(url);
 };
 
 const render = () => {
@@ -95,6 +94,13 @@ const render = () => {
     document.getElementById("news-board").innerHTML = newsHTML;
 }
 
+//에러가 났을 때 나오는 화면
+const errorRender = (message) => {
+    let errorHTML = `<div class="alert alert-danger text-center" role="alert">
+    ${message}
+  </div>`
+    document.getElementById("news-board").innerHTML = errorHTML;
+}
 
 searchButton.addEventListener("click", getNewsByKeyword);
  getLatestNews();
