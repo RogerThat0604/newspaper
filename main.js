@@ -31,6 +31,11 @@ const getNews = async (url) => {
         let data = await response.json();
 
         if(response.status == 200){
+            console.log("data",data);
+            console.log("response",response);
+            if(data.totalResults == 0){
+                throw new Error("검색된 결과값이 없습니다.");
+            }
             news = data.articles;
             console.log(news);
             render();
@@ -44,7 +49,7 @@ const getNews = async (url) => {
 }
 
 const getLatestNews = async ()=>{
-    url = new URL(`https://newsapi.org/v2/top-headlines?country=kr&category=sports&pageSize=10&apiKey=64bd66b165fa4d0799cc58d64f61e6d`
+    url = new URL(`https://newsapi.org/v2/top-headlines?country=kr&category=sports&pageSize=10&apiKey=64bd66b165fa4d0799cc58d64f61e6d2`
                     );
     getNews(url);
 };
